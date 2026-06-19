@@ -3,8 +3,8 @@ import environ
 
 
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+# Build paths inside the project like this: BASE_DIR / 'subdir' / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Prepare the read from env
 env = environ.Env(DEBUG=(bool, False))
