@@ -25,6 +25,8 @@ Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 | 12 | Commit direct pe `main`, ad-hoc | `main` protejat & deployable. Feature branch per tichet Jira → PR → merge. |
 | 13 | `db.sqlite3` a ajuns în istoric și a fost „șters" mai târziu | Ștergerea într-un commit ulterior **NU** scoate din istoric. Pentru un secret real: **(1) rotește cheia, (2) rescrie istoricul** (`git filter-repo`/BFG). |
 | 14 | Commit pe main cu mesaj vag fără cheie (`Actualizing the project`); asociat PM-3 în loc de PM-4 | Mesaj de commit = **cheia tichetului + descriere imperativă clară** a ce s-a schimbat. Fără cheie în mesaj, Jira **nu** leagă munca de tichet (development panel gol). Cheia din branch/commit trebuie să fie a tichetului **real**. |
+| 15 | Am pus `Postgres` în `requirements.in` (pachet greșit); a mers doar fiindcă depindea tranzitiv de `psycopg2-binary` | **Declară direct** dependența de care ai nevoie (`psycopg[binary]` = psycopg 3, preferat de Django 6). Nu te baza pe dependențe tranzitive accidentale. „Merge" ≠ „corect". `pip-sync` curăță pachetele care nu sunt în lockfile. |
+| 16 | A doua oară muncă direct pe `main`, fără branch | **Creează branch-ul ÎNAINTE de a scrie cod** pentru un tichet (`git switch -c feature/PM-X-...` ca prim pas), nu după. |
 
 ---
 
