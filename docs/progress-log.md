@@ -27,6 +27,9 @@ Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 | 14 | Commit pe main cu mesaj vag fără cheie (`Actualizing the project`); asociat PM-3 în loc de PM-4 | Mesaj de commit = **cheia tichetului + descriere imperativă clară** a ce s-a schimbat. Fără cheie în mesaj, Jira **nu** leagă munca de tichet (development panel gol). Cheia din branch/commit trebuie să fie a tichetului **real**. |
 | 15 | Am pus `Postgres` în `requirements.in` (pachet greșit); a mers doar fiindcă depindea tranzitiv de `psycopg2-binary` | **Declară direct** dependența de care ai nevoie (`psycopg[binary]` = psycopg 3, preferat de Django 6). Nu te baza pe dependențe tranzitive accidentale. „Merge" ≠ „corect". `pip-sync` curăță pachetele care nu sunt în lockfile. |
 | 16 | A doua oară muncă direct pe `main`, fără branch | **Creează branch-ul ÎNAINTE de a scrie cod** pentru un tichet (`git switch -c feature/PM-X-...` ca prim pas), nu după. |
+| 17 | Typo-uri în modele: `ReceipeIngredient`, câmpuri `receipe`/`incredient`; iar `__str__` accesa `self.recipe`/`self.ingredient` (nume care nu există) | Numele de câmp = **numele coloanelor DB + API-ul folosit peste tot**; typo migrat = dureros de schimbat. Nepotrivirea nume câmp ↔ nume folosit în `__str__` → `AttributeError` la runtime (ex. în admin). Verifică numele înainte de `makemigrations`. |
+| 18 | `on_delete=PROTECT` pe FK-ul `recipe` al liniei de rețetă (contrazice propriul raționament „child → CASCADE") | `on_delete` reflectă **înțelesul datelor**: child-of → `CASCADE`; resursă partajată/referită → `PROTECT`. O linie de rețetă e child al rețetei → CASCADE; ingredientul e resursă partajată → PROTECT. |
+| 19 | `from models import ...` în `admin.py` → `ModuleNotFoundError: No module named 'models'` | Folosește **import relativ** `from .models import ...` (leading dot = pachetul curent, `core`) sau absolut `from core.models import ...`. Modelele trăiesc în pachetul app-ului, nu la rădăcină. |
 
 ---
 
