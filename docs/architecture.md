@@ -1,18 +1,26 @@
-# Design Doc: Restaurant Inventory ↔ External POS Integration
+# Design Doc: Event-driven Order Ingestion (Delivery integration — Etapa 3)
 
-**Status:** Draft
-**Last updated:** 2026-06-14
-**Owner:** Product Management
+**Status:** Re-scoped 2026-06-20 · **Owner:** Alex
+
+> **Re-încadrare (citește întâi [plan.md](plan.md)).** Designul inițial presupunea un POS extern
+> care ne trimite webhook-uri. Realitatea: integrarea cu **SoftOK** se face prin **citire din MariaDB**
+> (pull), nu prin webhook-uri — deci acest document **nu** mai descrie integrarea principală.
+>
+> Dar designul de mai jos (webhook semnat HMAC → persist-then-enqueue → idempotență cu ledger) e
+> **excelent și se aplică exact la integrarea de Delivery (Etapa 3)**: Glovo / Bolt / Wolt chiar
+> *împing* comenzi prin webhooks și au `external_item_id` de mapat la rețetele noastre. Citește, deci,
+> „external POS" de mai jos ca **platformă de delivery**, iar acest doc ca **specificația componentei
+> de Delivery**. Arhitectura de ansamblu (SoftOK pull, motor de pierderi, API mobil) e în
+> [plan.md](plan.md).
 
 ---
 
 ## 1. Overview
 
-This system manages restaurant inventory (ingredients, recipes, stock levels). It does
-**not** handle customer-facing ordering. Orders are placed in an **external POS system**
-(e.g. Square, Toast, Clover) which notifies us in real time via **webhooks**. On each
-order, we map the POS line items to our internal recipes and **deduct the consumed
-ingredients** from inventory.
+This component ingests **delivery-platform orders** (Glovo / Bolt / Wolt). Each platform notifies us
+in real time via **webhooks**. On each order, we map the platform line items to our internal recipes
+and **deduct the consumed ingredients** from inventory — the same way the core SoftOK sales feed does,
+but event-driven instead of pulled.
 
 The two hard problems are:
 

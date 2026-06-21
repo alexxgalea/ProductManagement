@@ -26,10 +26,18 @@ explica cu cuvintele tale ce ai construit și de ce.
 
 ## 1. Coloana vertebrală
 
-Sistemul: **inventar restaurant ↔ POS extern**. POS-ul trimite webhook-uri semnate HMAC; noi mapăm
-produsele la rețete interne și **scădem ingredientele** din stoc. Trei probleme grele: reziliență la
-flood, idempotență (niciodată să nu scădem de două ori), mapping auditabil. Detalii complete în
-[architecture.md](architecture.md).
+Sistemul real (vezi [plan.md](plan.md)): aplicație **mobilă Android+iOS de control al pierderilor**
+pentru restaurantul Fifty's, **peste baza MariaDB a SoftOK**. Citim datele existente (bonuri, stoc,
+rețete, facturi) și construim stratul nou: **motorul de reconciliere a pierderilor** (inima), alerte,
+Plăți/P&L, OCR facturi, Advisor, delivery. Django devine **backend/API**; telefonul e frontend separat.
+
+Problemele grele se mută, dar rămân la fel de bogate de învățat: reconciliere corectă teoretic↔real
+(consistență cantitate/cost), idempotență la import din MariaDB, securitate & drepturi multi-locație,
+AI vision (OCR) și agent (Advisor).
+
+> Designul vechi de webhook/idempotență din [architecture.md](architecture.md) **nu se pierde** — se
+> re-folosește la **Delivery (Etapa 3)** (Glovo/Bolt/Wolt chiar trimit webhook-uri). Milestone-urile
+> M2/M3 de mai jos se re-atârnă acolo.
 
 Fiecare concept nou pe care vrei să-l înveți se **atârnă de o nevoie reală** a acestui sistem — nu
 facem demo-uri rupte.
@@ -41,17 +49,19 @@ facem demo-uri rupte.
 | Concept | Unde se atârnă |
 |---|---|
 | Docker / compose | Stack local: web + worker + Postgres + Redis/broker |
-| Postgres + tranzacții | Idempotența: `select_for_update`, ledger cu constraint unic, `F()` |
-| Celery | Procesarea async a webhook-urilor (persist-then-enqueue) |
-| Kafka | Webhook-urile ca *event stream* — producer → topic → consumer |
-| BullMQ (Node) | Microserviciu separat de notificări, cozi în alt ecosistem |
-| DAGs (Airflow/Dagster) | Job nocturn de reconciliere stoc din ledger + raport de drift |
+| Postgres + tranzacții | Import idempotent din MariaDB; `select_for_update`, constraint-uri, `F()` |
+| **DRF + API-first + JWT** | Backend-ul mobil: serializers, endpoints, auth cu token pentru Android/iOS |
+| Celery | Async: reconciliere săptămânală (beat), alerte, OCR facturi; webhook-uri delivery (Etapa 3) |
+| **DAGs (Airflow/Dagster)** | **Inima sistemului:** reconcilierea pierderilor teoretic↔real, programată, idempotentă |
+| **AI vision (Claude)** | OCR facturi: poză → JSON structurat → draft NIR + mapare furnizor→articol |
+| **AI agent / MCP** | Advisor: insighturi food-cost/profitabilitate; server MCP care expune starea ca tool |
+| Kafka | Comenzile delivery ca *event stream* — producer → topic → consumer |
+| BullMQ (Node) | Microserviciu separat de notificări/alerte, cozi în alt ecosistem |
 | Kubernetes + k9s | Deploy containere, scalare worker-i independent de API |
 | Sidecar loguri → Datadog | Datadog Agent (DaemonSet/sidecar) care trimite loguri + traces |
-| Datadog / Grafana / Splunk | Metrici: queue depth, latență deducere, rată unmapped |
-| Multi-regiune / scalare | Rulare în 2 regiuni; Postgres replication; idempotență cross-region |
-| Jira | `POSUnmappedItem`/`FAILED` → creează automat tichet de bug |
-| MCP | Server MCP care expune starea inventarului/cozilor ca tool |
+| Datadog / Grafana / Splunk | Metrici: latență reconciliere, rată pierderi neatribuite, queue depth |
+| Multi-regiune / scalare | Multi-locație → multi-regiune; Postgres replication; idempotență cross-region |
+| Jira | Pierdere neatribuită / OCR nemapat → creează automat tichet |
 
 ---
 
