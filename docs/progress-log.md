@@ -3,7 +3,7 @@
 Jurnal de învățare: fiecare greșeală devine o **regulă**. Plus un cheatsheet de concepte.
 Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 
-**Status:** M1 — Domeniul de bază: `accounts` (Fundație) ✅ · **Ultima actualizare:** 2026-06-21
+**Status:** M1 — Domeniul de bază: `accounts` + `core`/catalog + `inventory` + `sales` (modele Etapa 1) ✅ · **Ultima actualizare:** 2026-06-22
 
 ---
 
@@ -45,6 +45,29 @@ Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 
 ---
 
+## 1.2 Greșeli → reguli (M1 — catalog + inventory)
+
+| # | Ce s-a întâmplat | Regula de reținut |
+|---|---|---|
+| 25 | Ezitare `default=0` vs `null=True` pe `unitary_cost` | **0 ≠ NULL.** `0` = măsurătoare („e gratis"); `NULL` = „nu știu încă". Pe un câmp care **hrănește o metrică**, `default=0` ascunde datele lipsă (fail-silent: ingredient nepreț­uit → pierdere valorizată la 0 lei). `null=True` le face găsibile (`filter(unitary_cost__isnull=True)`) → fail-loud. |
+| 26 | Voiam alertă la stoc negativ în `save()` / signals | `save()` și `post_save` **NU** se declanșează pe `QuerySet.update()`, `bulk_update()`, update cu `F()` — iar stocul se mută cu `F()` atomic, deci s-ar rata fix momentul. Side-effects de business (alerte) stau în **service layer**, nu în model. Property doar pentru afișare în UI. |
+| 27 | FK către model din alt app | Folosește **string reference** `ForeignKey("app.Model", ...)`, nu importul clasei → eviți importurile circulare între app-uri; Django rezolvă referința lazy. |
+| 28 | Era să pushez fără fișierele de migrare + app-ul nou (netracked) | Migrările **sunt cod** → `git add` explicit la `*/migrations/0xxx_*.py` și la app-ul nou. Fără ele, schema **nu se reconstruiește** la colegi/CI. |
+
+---
+
+## 1.3 Greșeli → reguli (M1 — sales)
+
+| # | Ce s-a întâmplat | Regula de reținut |
+|---|---|---|
+| 29 | `external_id = BigAutoField()` pentru id-ul bonului din SoftOK | `AutoField`/`BigAutoField` = cheie surogat **generată de Django**, nu pentru valori externe. Un id dintr-un sistem extern se stochează ca **`CharField`** (e identificator, nu număr; îl setezi tu la import). Cu el + `UniqueConstraint(location, external_id)` ai **import idempotent**. |
+| 30 | `total` via `aggregate` — `["total"]` pus pe `Coalesce`, `output_field=DecimalField` (clasa) | `aggregate()` întoarce un **dict** → indexezi `["total"]` pe **rezultatul aggregate** (în afara apelului), nu pe expresia interioară. `output_field` cere o **instanță** `DecimalField()`, nu clasa. `F * F` cu zecimale poate cere `output_field` explicit (mixed types). |
+| 31 | Am vrut să las `unit_price` fără constrângere „ca să permit promoții la 0 lei" | `>= 0` **permite 0** (`0 >= 0` e adevărat) → promo la 0 lei trece oricum; constrângerea blochează doar **negativul**. Distinge „0 e valoare validă" de „negativ interzis". Corolar: **nu constrânge ce nu înțelegi încă** (storno/voiduri din SoftOK necunoscute → revizuiești la importul real). |
+| 32 | Confuzie `unique=True` vs `UniqueConstraint` | `unique=True` = unicitate pe **un** câmp (field-level); `UniqueConstraint` în `Meta` = pe **unul sau mai multe** câmpuri (modul modern; `unique_together` e soft-deprecated). Multi-câmp ⇒ **obligatoriu** Meta. |
+| 33 | (concept) De ce stocăm prețul pe linia de bon | **Snapshot price:** stochează prețul **vândut** pe `ReceiptLine.unit_price`, nu te baza pe prețul curent din catalog (`MenuItem`) — ăla migrează în timp (promoții, schimbări) → pentru venit/profit **istoric** corect ai nevoie de prețul de la momentul vânzării. |
+
+---
+
 ## 2. Cheatsheet — concepte de învățat (roadmap)
 
 - **Backend / Django:** ORM, migrări, constraints, tranzacții (`select_for_update`, `F()`), DRF, settings split, 12-factor config.
@@ -66,3 +89,4 @@ Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 5. **Versiunea runtime-ului cascadează** în tot ce poți instala.
 6. **main protejat; muncă pe feature branch legat de un tichet.**
 7. **Custom User din start** — `AUTH_USER_MODEL` nu se schimbă ușor după prima migrare; `null` (DB) ≠ `blank` (formular).
+8. **0 ≠ NULL** (măsurătoare vs „nu știu"); **side-effects de business în service layer**, nu în `save()`/signals (nu prind `.update()`/`F()`).
