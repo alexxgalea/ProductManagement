@@ -3,7 +3,7 @@
 Jurnal de învățare: fiecare greșeală devine o **regulă**. Plus un cheatsheet de concepte.
 Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 
-**Status:** M0 — Foundation & workflow (în curs) · **Ultima actualizare:** 2026-06-19
+**Status:** M1 — Domeniul de bază: `accounts` (Fundație) ✅ · **Ultima actualizare:** 2026-06-21
 
 ---
 
@@ -33,6 +33,18 @@ Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 
 ---
 
+## 1.1 Greșeli → reguli (M1 — domeniul de bază: `accounts`)
+
+| # | Ce s-a întâmplat | Regula de reținut |
+|---|---|---|
+| 20 | Am introdus custom `User` DUPĂ ce PM-7 migrase deja (cu User-ul default) | Custom `User(AbstractUser)` se definește **din prima zi**, chiar gol. `AUTH_USER_MODEL` schimbat după prima migrare = calvar (Django îl tratează ca schimbare **fundamentală**, nu ca extindere). În dev: reset DB. |
+| 21 | `on_delete=SET_NULL` doar cu `blank=True` → `fields.E320` | `null` (nivel **DB**: coloana acceptă NULL) ≠ `blank` (nivel **formular/validare**). `SET_NULL` cere `null=True` ca să aibă unde scrie NULL. |
+| 22 | `TextChoices` cu 3 valori (`"PATRON", "Patron", "patron"`) | Membru `TextChoices` = `NUME = "VALOARE_DB", "Etichetă"` — **exact 2**. Al treilea sparge maparea value/label și `default`. |
+| 23 | Am încercat `manage.py flush` ca să „resetez baza" (+ n-aveam `psql` local) | `flush` golește doar **datele**, păstrează schema + migrările. Pentru schemă nouă pe Postgres-în-Docker: `docker compose down -v` (șterge volumul) → `up -d`. `dbshell` cere psql **local** → folosește `docker compose exec db psql`. |
+| 24 | Era tentant `CASCADE` pe FK-urile din `AuditLog` | `on_delete` urmează **scopul datelor**: un audit log trebuie să **supraviețuiască** ștergerii actorului/locației (altfel pierzi exact dovada „ce s-a raportat") → `SET_NULL`. Extinde regula #18 la loguri de audit. |
+
+---
+
 ## 2. Cheatsheet — concepte de învățat (roadmap)
 
 - **Backend / Django:** ORM, migrări, constraints, tranzacții (`select_for_update`, `F()`), DRF, settings split, 12-factor config.
@@ -53,3 +65,4 @@ Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 4. **Un check verde nu e o dovadă** — știi ce validează.
 5. **Versiunea runtime-ului cascadează** în tot ce poți instala.
 6. **main protejat; muncă pe feature branch legat de un tichet.**
+7. **Custom User din start** — `AUTH_USER_MODEL` nu se schimbă ușor după prima migrare; `null` (DB) ≠ `blank` (formular).
