@@ -36,7 +36,6 @@ class Recipe(models.Model):
     def __str__(self):
         return f"Reteta pentru {self.menu_item.name}"
 
-# childOf --> CASCADE
 class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(Recipe, related_name="lines", on_delete=models.CASCADE)
     ingredient = models.ForeignKey(Ingredient, on_delete=models.PROTECT)
