@@ -3,7 +3,7 @@
 Jurnal de învățare: fiecare greșeală devine o **regulă**. Plus un cheatsheet de concepte.
 Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 
-**Status:** M1 — Domeniul de bază: `accounts` + `core`/catalog + `inventory` + `sales` (modele Etapa 1) ✅ · **Ultima actualizare:** 2026-06-22
+**Status:** M1 — Modele Etapa 1 ✅ + seed (management command) ✅ + Top produse (queryset/manager) ✅ · **Ultima actualizare:** 2026-06-23
 
 ---
 
@@ -65,6 +65,28 @@ Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 | 31 | Am vrut să las `unit_price` fără constrângere „ca să permit promoții la 0 lei" | `>= 0` **permite 0** (`0 >= 0` e adevărat) → promo la 0 lei trece oricum; constrângerea blochează doar **negativul**. Distinge „0 e valoare validă" de „negativ interzis". Corolar: **nu constrânge ce nu înțelegi încă** (storno/voiduri din SoftOK necunoscute → revizuiești la importul real). |
 | 32 | Confuzie `unique=True` vs `UniqueConstraint` | `unique=True` = unicitate pe **un** câmp (field-level); `UniqueConstraint` în `Meta` = pe **unul sau mai multe** câmpuri (modul modern; `unique_together` e soft-deprecated). Multi-câmp ⇒ **obligatoriu** Meta. |
 | 33 | (concept) De ce stocăm prețul pe linia de bon | **Snapshot price:** stochează prețul **vândut** pe `ReceiptLine.unit_price`, nu te baza pe prețul curent din catalog (`MenuItem`) — ăla migrează în timp (promoții, schimbări) → pentru venit/profit **istoric** corect ai nevoie de prețul de la momentul vânzării. |
+
+---
+
+## 1.4 Greșeli → reguli (M1 — seed / management command)
+
+| # | Ce s-a întâmplat | Regula de reținut |
+|---|---|---|
+| 34 | Comandă invizibilă / `args["receipts"]` → TypeError | Management command: **ambele** `__init__.py` (`management/` + `commands/`) sunt obligatorii. Argumentele parsate sunt în `**opts`, NU în `*args`. Argumentele **poziționale ignoră `default`** (sunt obligatorii) → fă-le `--flag` dacă le vrei opționale. |
+| 35 | `recipe = [get_or_create(...)[0]]` → „must be a Recipe instance" | `get_or_create` întoarce `(obj, created)` — **despachetează** (`[0]` sau `obj, _ =`). Nu-l pasa ca FK și **nu-l wrappa în `[]`** (altfel pasezi o listă acolo unde se așteaptă o instanță). |
+| 36 | `bulk_create` hrănit cu `get_or_create(...)` (tupluri, deja salvate) | Pentru `bulk_create` construiești instanțe **NESALVATE** cu `Model(...)`, nu cu `get_or_create` (ăla deja salvează + întoarce tuplu — nu le amesteca). `ignore_conflicts=True` = idempotență pe `UniqueConstraint`. Părinții trebuie să aibă **PK** înainte de copii. Nu cheamă `save()`/signals/validatori (vezi #26). Și: stochează **valoarea** choice-ului (`Enum.MEMBER`), nu label-ul. |
+| 37 | `datetime.now()` naiv; `flush` la final cu `.delete` fără `()` și ordine greșită | `timezone.now()`, nu `datetime.now()` (cu `USE_TZ`). Flush la **ÎNCEPUT** (cureți înainte de seed), ordine **dependenți-întâi** (respectă `PROTECT`: Stock/ReceiptLine/RecipeIngredient înainte de Ingredient), `.delete()` **cu paranteze**. `get_or_create` idempotent cere lookup **stabil** (nu `randint`). |
+
+---
+
+## 1.5 Greșeli → reguli (M1 — query / manager: Top produse)
+
+| # | Ce s-a întâmplat | Regula de reținut |
+|---|---|---|
+| 38 | Confuzii `values`/`annotate`/`output_field` | `values().annotate()` = **GROUP BY**: `values()` înainte de annotate = cheia de grupare **ȘI** coloanele de ieșire. `filter` pe câmp brut = WHERE; pe o anotare/agregat = HAVING. `output_field` se pune **înăuntrul** agregatului (`Sum(..., output_field=DecimalField())`), NU ca arg al `annotate()` (altfel „received non-expression"). |
+| 39 | Neclar de ce `qs = self` în metoda de QuerySet | Custom `QuerySet` + `as_manager()`: metoda pornește din **`self`** (queryset-ul pe care a fost apelată) → **înlănțuibilă** (`.filter(...).top_products()` respectă filtrul). Hardcodarea `.objects.all()` ar arunca contextul. Principiu: „fat model, thin view". |
+| 40 | A 3-a chemare întorcea `[]` din cauza `location=None` | `filter(camp=None)` = „WHERE camp **IS NULL**", NU „fără filtru". Ca să sari un filtru, aplică-l **condiționat** (`if x is not None: qs = qs.filter(...)`), construind `qs` pas cu pas. |
+| 41 | „Nu se actualizează" după ce schimb codul în shell | Shell-ul Python importă modulele **o dată per proces** (fără hot reload). Pentru iterație: fișier scratch + `manage.py shell < scratch.py` (proces nou = cod proaspăt). Locul „oficial" devine apoi testele (`TestCase`). |
 
 ---
 

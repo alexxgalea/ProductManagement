@@ -10,6 +10,10 @@ django==6.0.6
     # via -r requirements.in
 django-environ==0.13.0
     # via -r requirements.in
+factory-boy==3.3.3
+    # via -r requirements.in
+faker==40.23.0
+    # via factory-boy
 psycopg[binary]==3.3.4
     # via -r requirements.in
 psycopg-binary==3.3.4

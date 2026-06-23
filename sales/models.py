@@ -31,6 +31,19 @@ class Receipt(models.Model):
     def __str__(self):
         return f"{self.location} {self.sold_at} {self.external_id}"
     
+class ReceiptLineQuerySet(models.QuerySet):
+    def top_products(self, location=None, start=None, end=None, limit=10):
+        qs = self
+        if location is not None:
+            qs = self.filter(receipt__location = location)
+        if start is not None and end is not None:
+            qs = qs.filter(receipt__sold_at__range=(start,end))
+        
+        return(qs.values("menu_item","menu_item__name")
+               .annotate(qty = Sum("quantity"),
+                         revenue = Sum(F("quantity")*F("unit_price"), 
+                                       output_field = models.DecimalField()),
+                         ).order_by("-qty")[:limit])
 
 class ReceiptLine(models.Model):
     receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name="lines")
@@ -38,6 +51,7 @@ class ReceiptLine(models.Model):
     quantity = models.DecimalField(max_digits=12, decimal_places=3, validators=[MinValueValidator(0, "Cantitatea de pe bon nu poate fi negativa")])
     unit_price = models.DecimalField(max_digits=12, decimal_places=3, validators=[MinValueValidator(0, "Pretul unitar nu poate fi negativ")])
 
+    objects = ReceiptLineQuerySet.as_manager()
     def __str__(self):
         return f"{self.receipt} {self.menu_item} {self.quantity} {self.unit_price}"
     
