@@ -3,7 +3,7 @@
 Jurnal de învățare: fiecare greșeală devine o **regulă**. Plus un cheatsheet de concepte.
 Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 
-**Status:** M1 — Modele Etapa 1 ✅ + seed (management command) ✅ + Top produse (queryset/manager) ✅ · **Ultima actualizare:** 2026-06-23
+**Status:** M1 — Modele Etapa 1 ✅ + seed ✅ + Top produse (queryset/manager) ✅ + API DRF (Top produse) ✅ · **Ultima actualizare:** 2026-06-23
 
 ---
 
@@ -87,6 +87,17 @@ Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 | 39 | Neclar de ce `qs = self` în metoda de QuerySet | Custom `QuerySet` + `as_manager()`: metoda pornește din **`self`** (queryset-ul pe care a fost apelată) → **înlănțuibilă** (`.filter(...).top_products()` respectă filtrul). Hardcodarea `.objects.all()` ar arunca contextul. Principiu: „fat model, thin view". |
 | 40 | A 3-a chemare întorcea `[]` din cauza `location=None` | `filter(camp=None)` = „WHERE camp **IS NULL**", NU „fără filtru". Ca să sari un filtru, aplică-l **condiționat** (`if x is not None: qs = qs.filter(...)`), construind `qs` pas cu pas. |
 | 41 | „Nu se actualizează" după ce schimb codul în shell | Shell-ul Python importă modulele **o dată per proces** (fără hot reload). Pentru iterație: fișier scratch + `manage.py shell < scratch.py` (proces nou = cod proaspăt). Locul „oficial" devine apoi testele (`TestCase`). |
+
+---
+
+## 1.6 Greșeli → reguli (M1 — API / DRF: endpoint Top produse)
+
+| # | Ce s-a întâmplat | Regula de reținut |
+|---|---|---|
+| 42 | `query_params.get(location, ...)` (variabilă) + `limit` string în `[:limit]` | Cheile din `.get()` sunt **string-uri** (`get("location")`). Query params vin mereu ca **string** (ca env vars — regula #6) → convertește (`int(limit)`). |
+| 43 | Validarea rula **după** ce chemam `top_products` | **Early return:** întoarce `400` ÎNAINTE de query-ul costisitor, nu după. Întâi citește → convertește → validează → (dacă errors) return → abia apoi query. |
+| 44 | `return Response(response)` în loc de `serializer.data` | Întoarce `serializer.data`, nu obiectul brut — altfel sari peste serializer (redenumiri/format). Pentru date **agregate** (GROUP BY) folosești `serializers.Serializer` simplu, NU `ModelSerializer` (n-ai un model în spate). |
+| 45 | `qty`/`revenue` apar ca string în JSON | DRF redă `Decimal` ca **string** (default `COERCE_DECIMAL_TO_STRING`) ca să păstreze precizia — bun pentru bani/cantități. `decimal_places` din câmp controlează zecimalele afișate. |
 
 ---
 
