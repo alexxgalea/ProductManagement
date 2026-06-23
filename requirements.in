@@ -2,3 +2,4 @@ Django
 django-environ
 psycopg[binary]
 factory_boy
+djangorestframework

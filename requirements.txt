@@ -7,8 +7,12 @@
 asgiref==3.11.1
     # via django
 django==6.0.6
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   djangorestframework
 django-environ==0.13.0
+    # via -r requirements.in
+djangorestframework==3.17.1
     # via -r requirements.in
 factory-boy==3.3.3
     # via -r requirements.in
