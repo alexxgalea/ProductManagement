@@ -110,6 +110,7 @@ Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 | 48 | Neclar cum „știe" `Sum(F(...))` să adune câmpuri din alt model | `F("camp")`/`Sum("camp")` rezolvă numele câmpului pe **modelul queryset-ului** pe care le chemi — `self.lines` e queryset de `GoodsReceiptLine`, deci `F("quantity")` = câmp pe linie, nu pe modelul unde stă property-ul. De la părinte traversezi relația cu `__` (`lines__quantity`). `Coalesce` doar transformă `None`→`0`. |
 | 49 | Înregistrasem linia și separat în admin, pe lângă inline | Pentru un document header+linii folosește `TabularInline` (introduci tot pe un ecran); nu mai înregistra linia ca secțiune de sine stătătoare (redundant). Asta face admin-ul **utilizabil** pentru gestiune. |
 | 50 | `search_fields = ["location", "date"]` (FK + datetime) ar fi crăpat la căutare | `search_fields` face căutare **text** (`field__icontains`) → folosește câmpuri text sau traversare spre text (`location__name`); **FK/dată → `list_filter`**, nu `search_fields`. |
+| 51 | `variance` (property) nu apărea în admin; și ar fi crăpat pe rândurile `extra` | Admin afișează doar **câmpuri** — un `@property`/calcul se arată doar prin `readonly_fields`. Și **păzește** property-urile calculate față de rânduri **nesalvate/goale** (`extra`): verifică `field is None` / `fk_id is None` la început, altfel 500 la deschiderea formularului. |
 
 ---
 
