@@ -3,7 +3,7 @@
 Jurnal de învățare: fiecare greșeală devine o **regulă**. Plus un cheatsheet de concepte.
 Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 
-**Status:** M1 — Modele Etapa 1 ✅ + seed ✅ + Top produse (queryset/manager) ✅ + API DRF (Top produse) ✅ · **Ultima actualizare:** 2026-06-23
+**Status:** M1 — Modele Etapa 1 ✅ + seed ✅ + Top produse + API DRF ✅ + procurement (NIR/Supplier) + admin ✅ · **Ultima actualizare:** 2026-06-24
 
 ---
 
@@ -98,6 +98,17 @@ Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 | 43 | Validarea rula **după** ce chemam `top_products` | **Early return:** întoarce `400` ÎNAINTE de query-ul costisitor, nu după. Întâi citește → convertește → validează → (dacă errors) return → abia apoi query. |
 | 44 | `return Response(response)` în loc de `serializer.data` | Întoarce `serializer.data`, nu obiectul brut — altfel sari peste serializer (redenumiri/format). Pentru date **agregate** (GROUP BY) folosești `serializers.Serializer` simplu, NU `ModelSerializer` (n-ai un model în spate). |
 | 45 | `qty`/`revenue` apar ca string în JSON | DRF redă `Decimal` ca **string** (default `COERCE_DECIMAL_TO_STRING`) ca să păstreze precizia — bun pentru bani/cantități. `decimal_places` din câmp controlează zecimalele afișate. |
+
+---
+
+## 1.7 Greșeli → reguli (M1 — procurement: NIR / Supplier + admin)
+
+| # | Ce s-a întâmplat | Regula de reținut |
+|---|---|---|
+| 46 | Același `related_name="goods_receipt_lines"` pe toate FK-urile | `related_name` trebuie să descrie **ce întoarce** relația inversă. Copiat la fel pe FK-uri spre **modele diferite** nu dă eroare, dar **minte** (`supplier.goods_receipt_lines` întorcea NIR-uri, nu linii). Convenție: linie→header = `lines`; entitate→colecție = pluralul (`goods_receipts`). |
+| 47 | `date = DateTimeField(auto_now_add=True)` pe NIR | `auto_now_add` = momentul **creării rândului**, NU data de pe **document**. Pentru date istorice/de pe act (NIR, bon) folosește un câmp **settable** (introdus de user). Extinde lecția `sold_at`. |
+| 48 | Neclar cum „știe" `Sum(F(...))` să adune câmpuri din alt model | `F("camp")`/`Sum("camp")` rezolvă numele câmpului pe **modelul queryset-ului** pe care le chemi — `self.lines` e queryset de `GoodsReceiptLine`, deci `F("quantity")` = câmp pe linie, nu pe modelul unde stă property-ul. De la părinte traversezi relația cu `__` (`lines__quantity`). `Coalesce` doar transformă `None`→`0`. |
+| 49 | Înregistrasem linia și separat în admin, pe lângă inline | Pentru un document header+linii folosește `TabularInline` (introduci tot pe un ecran); nu mai înregistra linia ca secțiune de sine stătătoare (redundant). Asta face admin-ul **utilizabil** pentru gestiune. |
 
 ---
 
