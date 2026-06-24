@@ -14,7 +14,6 @@ class Location(models.Model):
     def __str__(self):
         return f"{self.id} {self.name}"
     
-    
 
 class Membership(models.Model):
     #defining the choices
@@ -38,6 +37,7 @@ class Membership(models.Model):
 
     def __str__(self):
         return f"{self.user} {self.location} {self.role}"
+
 
 class AuditLog(models.Model):
     actor = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL, related_name="audit_logs")

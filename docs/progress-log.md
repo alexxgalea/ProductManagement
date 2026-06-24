@@ -3,7 +3,7 @@
 Jurnal de învățare: fiecare greșeală devine o **regulă**. Plus un cheatsheet de concepte.
 Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 
-**Status:** M1 — Modele Etapa 1 ✅ + seed ✅ + Top produse + API DRF ✅ + procurement (NIR/Supplier) + admin ✅ · **Ultima actualizare:** 2026-06-24
+**Status:** M1 — Modele Etapa 1 ✅ + seed ✅ + Top produse + API DRF ✅ + procurement (NIR/Supplier) ✅ + Inventar (StockCount) ✅ · **Ultima actualizare:** 2026-06-24
 
 ---
 
@@ -109,6 +109,7 @@ Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 | 47 | `date = DateTimeField(auto_now_add=True)` pe NIR | `auto_now_add` = momentul **creării rândului**, NU data de pe **document**. Pentru date istorice/de pe act (NIR, bon) folosește un câmp **settable** (introdus de user). Extinde lecția `sold_at`. |
 | 48 | Neclar cum „știe" `Sum(F(...))` să adune câmpuri din alt model | `F("camp")`/`Sum("camp")` rezolvă numele câmpului pe **modelul queryset-ului** pe care le chemi — `self.lines` e queryset de `GoodsReceiptLine`, deci `F("quantity")` = câmp pe linie, nu pe modelul unde stă property-ul. De la părinte traversezi relația cu `__` (`lines__quantity`). `Coalesce` doar transformă `None`→`0`. |
 | 49 | Înregistrasem linia și separat în admin, pe lângă inline | Pentru un document header+linii folosește `TabularInline` (introduci tot pe un ecran); nu mai înregistra linia ca secțiune de sine stătătoare (redundant). Asta face admin-ul **utilizabil** pentru gestiune. |
+| 50 | `search_fields = ["location", "date"]` (FK + datetime) ar fi crăpat la căutare | `search_fields` face căutare **text** (`field__icontains`) → folosește câmpuri text sau traversare spre text (`location__name`); **FK/dată → `list_filter`**, nu `search_fields`. |
 
 ---
 
