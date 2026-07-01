@@ -3,7 +3,7 @@
 Jurnal de învățare: fiecare greșeală devine o **regulă**. Plus un cheatsheet de concepte.
 Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 
-**Status:** M1 — Modele Etapa 1 ✅ + seed ✅ + Top produse + API DRF ✅ + procurement (NIR/Supplier) ✅ + Inventar (StockCount) ✅ · **Ultima actualizare:** 2026-06-24
+**Status:** M1 — Modele Etapa 1 ✅ + seed ✅ + Top produse + API DRF ✅ + procurement (NIR/Supplier) ✅ + Inventar (StockCount) ✅ + ReportedLoss (losses) ✅ · **Ultima actualizare:** 2026-07-01
 
 ---
 
