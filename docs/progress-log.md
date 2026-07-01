@@ -114,6 +114,15 @@ Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 
 ---
 
+## 1.8 Greșeli → reguli (M1 — losses: ReportedLoss)
+
+| # | Ce s-a întâmplat | Regula de reținut |
+|---|---|---|
+| 52 | FK cu app-label greșit (`"core.Location"`, `"core.User"`) și apoi `"accounts.AUTH_USER_MODEL"` ca string | Referă modelul cu **app-label-ul corect** (`Location`/`User` sunt în `accounts`, nu `core`). Modelul de user se referă prin **`settings.AUTH_USER_MODEL`** — care e o **setare** (constantă Python cu valoarea `"accounts.User"`), o **imporți și o folosești**, NU o scrii ca string literal. |
+| 53 | `default=timezone.now()` (cu paranteze) | La `default` dai **callable-ul**, nu rezultatul: `default=timezone.now` (fără `()`). Cu paranteze se evaluează **o singură dată** la încărcarea modulului → toate rândurile primesc **același** timestamp. Django cheamă callable-ul per-rând. |
+
+---
+
 ## 2. Cheatsheet — concepte de învățat (roadmap)
 
 - **Backend / Django:** ORM, migrări, constraints, tranzacții (`select_for_update`, `F()`), DRF, settings split, 12-factor config.
