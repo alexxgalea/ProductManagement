@@ -3,7 +3,7 @@
 Jurnal de învățare: fiecare greșeală devine o **regulă**. Plus un cheatsheet de concepte.
 Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 
-**Status:** M1 — Modele Etapa 1 ✅ + seed ✅ + Top produse + API DRF ✅ + procurement (NIR/Supplier) ✅ + Inventar (StockCount) ✅ + ReportedLoss (losses) ✅ · **Ultima actualizare:** 2026-07-01
+**Status:** M1 — Etapa 1 modele + Top produse API + **gestiune-entry completă** (procurement, inventar, losses, budget) ✅ — Faza A gata · **Ultima actualizare:** 2026-07-04
 
 ---
 
@@ -120,6 +120,7 @@ Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 |---|---|---|
 | 52 | FK cu app-label greșit (`"core.Location"`, `"core.User"`) și apoi `"accounts.AUTH_USER_MODEL"` ca string | Referă modelul cu **app-label-ul corect** (`Location`/`User` sunt în `accounts`, nu `core`). Modelul de user se referă prin **`settings.AUTH_USER_MODEL`** — care e o **setare** (constantă Python cu valoarea `"accounts.User"`), o **imporți și o folosești**, NU o scrii ca string literal. |
 | 53 | `default=timezone.now()` (cu paranteze) | La `default` dai **callable-ul**, nu rezultatul: `default=timezone.now` (fără `()`). Cu paranteze se evaluează **o singură dată** la încărcarea modulului → toate rândurile primesc **același** timestamp. Django cheamă callable-ul per-rând. |
+| 54 | `MinValueValidator(0, 0, message=...)` → TypeError; nume model `Buget` (RO) în cod EN | `MinValueValidator(limit_value, message=...)` — **un** pozițional (limita), `message` e kwarg; al doilea pozițional lovește `message`. Ține numele de cod **consecvente** (engleză peste tot: `Budget`, nu `Buget`); typo-ul intră în tabelă/migrări (regula #17). Truc bun: `month` ca `DateField` normalizat la ziua 1 în `save()` → `unique(location, month)` chiar înseamnă „un buget/lună". |
 
 ---
 
