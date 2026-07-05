@@ -3,7 +3,7 @@
 Jurnal de învățare: fiecare greșeală devine o **regulă**. Plus un cheatsheet de concepte.
 Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 
-**Status:** M1 — Etapa 1 modele + Top produse API + **gestiune-entry completă** (procurement, inventar, losses, budget) ✅ — Faza A gata · **Ultima actualizare:** 2026-07-04
+**Status:** M1 (final) — gestiune-entry completă ✅ + **Faza B**: service layer `apply_goods_receipt` (atomic + F() + idempotent + `select_for_update`) + primul `TestCase` ✅ · **Ultima actualizare:** 2026-07-05
 
 ---
 
@@ -121,6 +121,17 @@ Actualizat la fiecare pas și oglindit în Pinecone (recall semantic).
 | 52 | FK cu app-label greșit (`"core.Location"`, `"core.User"`) și apoi `"accounts.AUTH_USER_MODEL"` ca string | Referă modelul cu **app-label-ul corect** (`Location`/`User` sunt în `accounts`, nu `core`). Modelul de user se referă prin **`settings.AUTH_USER_MODEL`** — care e o **setare** (constantă Python cu valoarea `"accounts.User"`), o **imporți și o folosești**, NU o scrii ca string literal. |
 | 53 | `default=timezone.now()` (cu paranteze) | La `default` dai **callable-ul**, nu rezultatul: `default=timezone.now` (fără `()`). Cu paranteze se evaluează **o singură dată** la încărcarea modulului → toate rândurile primesc **același** timestamp. Django cheamă callable-ul per-rând. |
 | 54 | `MinValueValidator(0, 0, message=...)` → TypeError; nume model `Buget` (RO) în cod EN | `MinValueValidator(limit_value, message=...)` — **un** pozițional (limita), `message` e kwarg; al doilea pozițional lovește `message`. Ține numele de cod **consecvente** (engleză peste tot: `Budget`, nu `Buget`); typo-ul intră în tabelă/migrări (regula #17). Truc bun: `month` ca `DateField` normalizat la ziua 1 în `save()` → `unique(location, month)` chiar înseamnă „un buget/lună". |
+
+---
+
+## 1.9 Greșeli → reguli (M1 final — service layer + primul test)
+
+| # | Ce s-a întâmplat | Regula de reținut |
+|---|---|---|
+| 55 | Aplicarea unui NIR de două ori dubla stocul | **Idempotență** pe mutații de stoc: marchezi documentul `applied` ca să nu re-aplici delta. Dar `if applied … applied=True` are un **race** (ambii citesc `False`) → `select_for_update` (lock pe rând) serializează; al doilea vede `applied=True` și iese. `StockCount` (setare absolută) e natural idempotent; deltas (NIR/loss) nu. |
+| 56 | `stock.quantity = stock.quantity + x; save()` (read-modify-write) | `F("quantity") + delta` = increment **atomic în SQL** → fără „lost update" la concurență (fără decalajul citit-în-Python/scris). ⚠️ După `update()` cu `F()`, obiectul din memorie e **vechi** → `refresh_from_db()` ca să vezi valoarea nouă. |
+| 57 | Aplicare parțială la crash; `select_for_update` fără tranzacție | `@transaction.atomic` = **totul-sau-nimic** (rollback la crash → fără jumătăți). `select_for_update` **cere** o tranzacție activă (altfel `TransactionManagementError`) — lock-ul ține **până la commit**. Trebuie să **re-interoghezi cu lock-ul**: primești `id`, faci `Model.objects.select_for_update().get(pk=...)` **înăuntru** (un obiect deja adus nu e blocat). |
+| 58 | „NO TESTS RAN" — metoda de test indentată în `setUp` | `TestCase` rulează pe o **bază de test separată** (nu-ți atinge datele de dev), `setUp` înainte de **fiecare** test. Metodele de test trebuie la **nivelul clasei** (indentare = apartenență) și să înceapă cu `test_`; indentate în `setUp` → nu-s descoperite. După `F()` update, `refresh_from_db()` în test ca să vezi valoarea nouă. |
 
 ---
 

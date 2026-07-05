@@ -23,6 +23,9 @@ class GoodsReceipt(models.Model):
     location = models.ForeignKey("accounts.Location", on_delete=models.PROTECT, related_name="goods_receipts")
     date = models.DateTimeField()
     document_number = models.CharField(max_length=120)
+    applied = models.BooleanField(default=False)
+    applied_at = models.DateTimeField(null=True, blank=True)
+    
 
     @property
     def total(self):
