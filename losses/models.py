@@ -7,10 +7,10 @@ from django.conf import settings
 # Create your models here.
 class ReportedLoss(models.Model):
     class Reason(models.TextChoices):
-        expired = "EXPIRAT", "Expirat"
-        burned = "ARS", "Ars"
-        rotten = "STRICAT", "Stricat"
-        dropped = "SCAPAT", "Scapat"
+        EXPIRED = "EXPIRAT", "Expirat"
+        BURNED = "ARS", "Ars"
+        ROTTEN = "STRICAT", "Stricat"
+        DROPPED = "SCAPAT", "Scapat"
 
     location = models.ForeignKey(
         "accounts.Location", on_delete=models.PROTECT, related_name="reported_losses"
@@ -28,6 +28,8 @@ class ReportedLoss(models.Model):
         settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL
     )
     occurred_at = models.DateTimeField(default=timezone.now)
+    applied = models.BooleanField(default=False)
+    applied_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         constraints = [
