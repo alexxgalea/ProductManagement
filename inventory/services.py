@@ -22,7 +22,6 @@ def apply_goods_receipt(gr_id):
     gr.applied_at = timezone.now()
     gr.save()
 
-
 @transaction.atomic
 def apply_reported_loss(loss_id):
     loss = ReportedLoss.objects.select_for_update().get(pk=loss_id)
