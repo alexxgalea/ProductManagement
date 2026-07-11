@@ -32,6 +32,8 @@ class Stock(models.Model):
 class StockCount(models.Model):
     location = models.ForeignKey("accounts.Location", on_delete=models.PROTECT, related_name="stock_counts")
     date = models.DateTimeField()
+    applied = models.BooleanField(default=False)
+    applied_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.location} {self.date}"
