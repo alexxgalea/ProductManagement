@@ -2,6 +2,21 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from django.utils import timezone
 from django.conf import settings
+from django.db.models import Sum, F
+from django.db.models.functions import Coalesce
+
+
+class ReportedLossQuerySet(models.QuerySet):
+    def summary_by_ingredient(self, location=None, start=None, end=None):
+        qs = self
+        if location is not None:
+            qs = qs.filter(location=location)
+        if start is not None and end is not None:
+            qs = qs.filter(occurred_at__range=(start, end))
+        return (qs.values("ingredient", "ingredient__name")
+                .annotate(total_quantity=models.Sum("quantity"),
+                          value=Sum(models.F("quantity") * Coalesce(F("ingredient__unitary_cost"), 0, output_field=models.DecimalField())))
+                .order_by("-total_quantity"))
 
 
 # Create your models here.
@@ -30,6 +45,7 @@ class ReportedLoss(models.Model):
     occurred_at = models.DateTimeField(default=timezone.now)
     applied = models.BooleanField(default=False)
     applied_at = models.DateTimeField(null=True, blank=True)
+    objects = ReportedLossQuerySet.as_manager()
 
     class Meta:
         constraints = [
