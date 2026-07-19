@@ -3,3 +3,6 @@ django-environ
 psycopg[binary]
 factory_boy
 djangorestframework
+pytest
+pytest-django
+pytest-cov
