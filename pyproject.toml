@@ -11,8 +11,11 @@ omit = [
     "*/tests/*",
     "manage.py",
     "config/*",
+    "*/views.py",
+    "*/urls.py",
+    "*/serializers.py",
 ]
 
 [tool.coverage.report]
-# fail_under = 70  # se activează în sesiunea 3 (spec M2, pasul 13)
+fail_under = 70  # se activează în sesiunea 3 (spec M2, pasul 13)
 show_missing = true

@@ -1,68 +1,57 @@
 import pytest
 from .conftest import create_goods_receipt_line, create_stock, create_goods_receipt, create_reported_loss, create_stock_count, create_stock_count_line
 from inventory.services import apply_goods_receipt, apply_reported_loss, apply_stock_count
+import threading
+from django.db import connections
 
-@pytest.mark.django_db
-def test_apply_goods_receipt(create_goods_receipt, create_goods_receipt_line, create_stock):
-    good_receipt = create_goods_receipt
-    stock = create_stock
-    apply_goods_receipt(good_receipt.id)
-    stock.refresh_from_db()
-    assert stock.quantity == 30
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.parametrize("times",[1,2])
+def test_repeated_apply_goods_receipt_same_effect(create_goods_receipt, create_goods_receipt_line, create_stock, times):
+    for _ in range(times):
+        apply_goods_receipt(create_goods_receipt.id)
+    create_stock.refresh_from_db()
+    assert create_stock.quantity == 30
 
-@pytest.mark.django_db
-def test_double_apply_does_not_double(create_goods_receipt, create_goods_receipt_line, create_stock):
-    good_receipt = create_goods_receipt
-    stock = create_stock
-    apply_goods_receipt(good_receipt.id)
-    stock.refresh_from_db()
-    stock_quantity_first = stock.quantity
-    assert stock_quantity_first == 30
-    apply_goods_receipt(good_receipt.id)
-    stock.refresh_from_db()
-    stock_quantity_second = stock.quantity
-    assert stock_quantity_first == stock_quantity_second
+@pytest.mark.django_db(transaction=True)
+def test_two_workers_racing_do_not_double_apply(create_goods_receipt, create_goods_receipt_line, create_stock):
+    good_receipt_id = create_goods_receipt.id
 
-@pytest.mark.django_db
-def test_apply_reported_loss(create_stock, create_reported_loss):
-    stock = create_stock
-    reported_loss = create_reported_loss
+    barrier = threading.Barrier(2)
 
-    apply_reported_loss(reported_loss.id)
-    stock.refresh_from_db()
-    assert stock.quantity == 15
+    def worker():
+        barrier.wait()
+        try:
+            apply_goods_receipt(good_receipt_id)
+        finally:
+            connections.close_all()
 
-@pytest.mark.django_db
-def test_double_loss_does_not_double(create_stock, create_reported_loss):
-    stock = create_stock
-    reported_loss = create_reported_loss
+    t1 = threading.Thread(target=worker)
+    t2 = threading.Thread(target=worker)
 
-    apply_reported_loss(reported_loss.id)
-    stock.refresh_from_db()
-    assert stock.quantity == 15
-    stock_quantity_first = stock.quantity
-    apply_reported_loss(reported_loss.id)
-    stock.refresh_from_db()
-    stock_quantity_second = stock.quantity
-    assert stock_quantity_first == stock_quantity_second
+    t1.start()
+    t2.start()
 
-@pytest.mark.django_db
-def test_apply_stock_count(create_stock ,create_stock_count, create_stock_count_line):
-    stock = create_stock
-    stock_count = create_stock_count
-    apply_stock_count(stock_count.id)
-    stock.refresh_from_db()
-    assert stock.quantity == 18
+    t1.join()
+    t2.join()
 
-@pytest.mark.django_db
-def test_double_stock_count_does_not_double(create_stock ,create_stock_count, create_stock_count_line):
-    stock = create_stock
-    stock_count = create_stock_count
-    
-    apply_stock_count(stock_count.id)
-    stock.refresh_from_db()
-    assert stock.quantity == 18
-    apply_stock_count(stock_count.id)
-    stock.refresh_from_db()
-    assert stock.quantity == 18
+    create_stock.refresh_from_db()
+    assert create_stock.quantity == 30
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.parametrize("times",[1,2])
+def test_repeated_apply_reported_loss_same_effect(create_stock, create_reported_loss, times):
+    for _ in range(times):
+        apply_reported_loss(create_reported_loss.id)
+    create_stock.refresh_from_db()
+    assert create_stock.quantity == 15
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.parametrize("times",[1,2])
+def test_repeated_apply_stock_count_same_effect(create_stock ,create_stock_count, create_stock_count_line, times):
+    for _ in range(times):
+        apply_stock_count(create_stock_count.id)
+    create_stock.refresh_from_db()
+    assert create_stock.quantity == 18  
+
 
