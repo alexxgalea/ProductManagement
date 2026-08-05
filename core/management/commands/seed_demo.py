@@ -69,8 +69,9 @@ class Command(BaseCommand):
                                              ignore_conflicts=True)
 
         receips = [Receipt.objects.get_or_create(location = new_location, 
-                                                 sold_at = timezone.now(), 
-                                                 external_id = f"Identificator{i}")[0]
+                                    
+                                                 external_id = f"Identificator{i}",
+                                                 defaults = {"sold_at": timezone.now()})[0]
                    for i in range(nof_receipts)]
         
         receipt_lines = []

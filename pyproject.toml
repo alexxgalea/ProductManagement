@@ -1,0 +1,21 @@
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.dev"
+python_files = ["test_*.py"]
+
+[tool.coverage.run]
+source = ["core", "accounts", "inventory", "procurement", "sales", "losses"]
+omit = [
+    "*/migrations/*",
+    "*/admin.py",
+    "*/apps.py",
+    "*/tests/*",
+    "manage.py",
+    "config/*",
+    "*/views.py",
+    "*/urls.py",
+    "*/serializers.py",
+]
+
+[tool.coverage.report]
+fail_under = 70  # se activează în sesiunea 3 (spec M2, pasul 13)
+show_missing = true

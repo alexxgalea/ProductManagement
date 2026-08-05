@@ -6,6 +6,8 @@
 #
 asgiref==3.11.1
     # via django
+coverage[toml]==7.15.2
+    # via pytest-cov
 django==6.0.6
     # via
     #   -r requirements.in
@@ -18,10 +20,29 @@ factory-boy==3.3.3
     # via -r requirements.in
 faker==40.23.0
     # via factory-boy
+iniconfig==2.3.0
+    # via pytest
+packaging==26.2
+    # via pytest
+pluggy==1.6.0
+    # via
+    #   pytest
+    #   pytest-cov
 psycopg[binary]==3.3.4
     # via -r requirements.in
 psycopg-binary==3.3.4
     # via psycopg
+pygments==2.20.0
+    # via pytest
+pytest==9.1.1
+    # via
+    #   -r requirements.in
+    #   pytest-cov
+    #   pytest-django
+pytest-cov==7.1.0
+    # via -r requirements.in
+pytest-django==4.12.0
+    # via -r requirements.in
 sqlparse==0.5.5
     # via django
 typing-extensions==4.15.0
