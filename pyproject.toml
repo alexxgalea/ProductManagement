@@ -19,3 +19,21 @@ omit = [
 [tool.coverage.report]
 fail_under = 70  # se activează în sesiunea 3 (spec M2, pasul 13)
 show_missing = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "DJ", "UP"]
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+
+# Module fără type stubs intră aici, pe măsură ce apar la rularea mypy (spec M3, pasul 6):
+# [[tool.mypy.overrides]]
+# module = "factory.*"
+# ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings.dev"
