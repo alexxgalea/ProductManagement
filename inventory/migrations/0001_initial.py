@@ -5,26 +5,48 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('accounts', '0001_initial'),
-        ('core', '0002_rename_quantity_recipeingredient_net_quantity_and_more'),
+        ("accounts", "0001_initial"),
+        ("core", "0002_rename_quantity_recipeingredient_net_quantity_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Stock',
+            name="Stock",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quantity', models.DecimalField(decimal_places=3, default=0, max_digits=12)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('ingredient', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='stocks', to='core.ingredient')),
-                ('location', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='stocks', to='accounts.location')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("quantity", models.DecimalField(decimal_places=3, default=0, max_digits=12)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "ingredient",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="stocks",
+                        to="core.ingredient",
+                    ),
+                ),
+                (
+                    "location",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="stocks",
+                        to="accounts.location",
+                    ),
+                ),
             ],
             options={
-                'constraints': [models.UniqueConstraint(fields=('location', 'ingredient'), name='uq_location_ingredient')],
+                "constraints": [
+                    models.UniqueConstraint(
+                        fields=("location", "ingredient"), name="uq_location_ingredient"
+                    )
+                ],
             },
         ),
     ]

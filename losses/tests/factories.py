@@ -4,6 +4,7 @@ import factory
 
 from losses.models import ReportedLoss
 
+
 class LossFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = "losses.ReportedLoss"

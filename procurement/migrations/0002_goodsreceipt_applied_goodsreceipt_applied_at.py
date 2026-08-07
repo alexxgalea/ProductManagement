@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('procurement', '0001_initial'),
+        ("procurement", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='goodsreceipt',
-            name='applied',
+            model_name="goodsreceipt",
+            name="applied",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='goodsreceipt',
-            name='applied_at',
+            model_name="goodsreceipt",
+            name="applied_at",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]

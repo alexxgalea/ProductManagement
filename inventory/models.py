@@ -11,9 +11,7 @@ class StockQuerySet(models.QuerySet):
     def with_value(self):
         return self.annotate(
             value=F("quantity")
-            * Coalesce(
-                F("ingredient__unitary_cost"), Decimal(0), output_field=DecimalField()
-            )
+            * Coalesce(F("ingredient__unitary_cost"), Decimal(0), output_field=DecimalField())
         )
 
 
@@ -75,9 +73,7 @@ class StockCountLine(models.Model):
             return None
 
         try:
-            stock_record = Stock.objects.get(
-                location=location, ingredient=self.ingredient
-            )
+            stock_record = Stock.objects.get(location=location, ingredient=self.ingredient)
             current_stock = stock_record.quantity
         except ObjectDoesNotExist:
             current_stock = Decimal("0.000")

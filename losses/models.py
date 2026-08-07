@@ -13,10 +13,17 @@ class ReportedLossQuerySet(models.QuerySet):
             qs = qs.filter(location=location)
         if start is not None and end is not None:
             qs = qs.filter(occurred_at__range=(start, end))
-        return (qs.values("ingredient", "ingredient__name")
-                .annotate(total_quantity=models.Sum("quantity"),
-                          value=Sum(models.F("quantity") * Coalesce(F("ingredient__unitary_cost"), 0, output_field=models.DecimalField())))
-                .order_by("-total_quantity"))
+        return (
+            qs.values("ingredient", "ingredient__name")
+            .annotate(
+                total_quantity=models.Sum("quantity"),
+                value=Sum(
+                    models.F("quantity")
+                    * Coalesce(F("ingredient__unitary_cost"), 0, output_field=models.DecimalField())
+                ),
+            )
+            .order_by("-total_quantity")
+        )
 
 
 # Create your models here.
@@ -77,12 +84,8 @@ class StaffConsumptionBudget(models.Model):
 
     class Meta:
         constraints = [
-            models.CheckConstraint(
-                condition=models.Q(amount__gte=0), name="amount_gte_0"
-            ),
-            models.UniqueConstraint(
-                fields=["location", "month"], name="uq_location_month"
-            ),
+            models.CheckConstraint(condition=models.Q(amount__gte=0), name="amount_gte_0"),
+            models.UniqueConstraint(fields=["location", "month"], name="uq_location_month"),
         ]
 
     def save(self, *args, **kwargs):

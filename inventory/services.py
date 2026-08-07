@@ -22,6 +22,7 @@ def apply_goods_receipt(gr_id):
     gr.applied_at = timezone.now()
     gr.save()
 
+
 @transaction.atomic
 def apply_reported_loss(loss_id):
     loss = ReportedLoss.objects.select_for_update().get(pk=loss_id)
@@ -36,20 +37,18 @@ def apply_reported_loss(loss_id):
     loss.applied_at = timezone.now()
     loss.save()
 
+
 @transaction.atomic
 def apply_stock_count(sc_id):
-    sc = StockCount.objects.select_for_update().get(pk = sc_id)
+    sc = StockCount.objects.select_for_update().get(pk=sc_id)
     if sc.applied:
         return
     for line in sc.stock_lines.all():
         stock, _ = Stock.objects.get_or_create(
-            location = sc.location,
-            ingredient = line.ingredient,
-            defaults={"quantity": 0}
+            location=sc.location, ingredient=line.ingredient, defaults={"quantity": 0}
         )
-        Stock.objects.filter(pk = stock.pk).update(quantity = line.counted_quantity)
+        Stock.objects.filter(pk=stock.pk).update(quantity=line.counted_quantity)
 
     sc.applied = True
     sc.applied_at = timezone.now()
     sc.save()
-    

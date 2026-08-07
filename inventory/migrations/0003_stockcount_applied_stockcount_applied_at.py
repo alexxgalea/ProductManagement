@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('inventory', '0002_stockcount_stockcountline'),
+        ("inventory", "0002_stockcount_stockcountline"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='stockcount',
-            name='applied',
+            model_name="stockcount",
+            name="applied",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='stockcount',
-            name='applied_at',
+            model_name="stockcount",
+            name="applied_at",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]

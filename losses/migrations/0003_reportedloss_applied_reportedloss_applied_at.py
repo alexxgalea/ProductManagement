@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('losses', '0002_staffconsumptionbudget'),
+        ("losses", "0002_staffconsumptionbudget"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='reportedloss',
-            name='applied',
+            model_name="reportedloss",
+            name="applied",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='reportedloss',
-            name='applied_at',
+            model_name="reportedloss",
+            name="applied_at",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]

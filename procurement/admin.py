@@ -11,22 +11,18 @@ class GoodsReceiptLineInline(admin.TabularInline):
     extra = 3
     show_change_link = True
 
+
 @admin.action(description="Aplica pe stoc")
 def apply_to_stock(modeladmin, request, queryset):
     for gr in queryset:
         apply_goods_receipt(gr.id)
     modeladmin.message_user(request, f"{queryset.count()} NIR-uri aplicate pe stoc.")
 
+
 @admin.register(GoodsReceipt)
 class GoodsReceiptAdmin(admin.ModelAdmin):
-    list_display = ["supplier","location","date","document_number", "applied", "applied_at"]
+    list_display = ["supplier", "location", "date", "document_number", "applied", "applied_at"]
     search_fields = ["document_number", "supplier__name"]
     readonly_fields = ["applied", "applied_at"]
     inlines = [GoodsReceiptLineInline]
-    actions=[apply_to_stock]
-
-
-
-
-
-
+    actions = [apply_to_stock]
