@@ -1,6 +1,8 @@
 from django.contrib import admin
+
 from .models import Stock, StockCount, StockCountLine
 from .services import apply_stock_count
+
 # Register your models here.
 
 admin.site.register(Stock)

@@ -1,16 +1,17 @@
 from decimal import Decimal
 
 import pytest
-from inventory.tests.factories import StockFactory, StockCountFactory, StockCountLineFactory
-from core.tests.factories import IngredientFactory
+
 from accounts.tests.factories import LocationFactory
+from core.tests.factories import IngredientFactory
+from inventory.tests.factories import StockCountFactory, StockCountLineFactory, StockFactory
+from losses.models import ReportedLoss
 from losses.tests.factories import LossFactory
 from procurement.tests.factories import (
-    SupplierFactory,
     GoodsReceiptFactory,
     GoodsReceiptLineFactory,
+    SupplierFactory,
 )
-from losses.models import ReportedLoss
 
 
 @pytest.fixture

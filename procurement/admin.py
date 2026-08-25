@@ -1,6 +1,8 @@
 from django.contrib import admin
-from .models import GoodsReceipt, GoodsReceiptLine, Supplier
+
 from inventory.services import apply_goods_receipt
+
+from .models import GoodsReceipt, GoodsReceiptLine, Supplier
 
 # Register your models here.
 admin.site.register(Supplier)

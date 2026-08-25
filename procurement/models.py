@@ -1,7 +1,7 @@
-from django.db import models
-from django.db.models.functions import Coalesce
-from django.db.models import Sum, F
 from django.core.validators import MinValueValidator
+from django.db import models
+from django.db.models import F, Sum
+from django.db.models.functions import Coalesce
 
 
 # Create your models here.
@@ -26,16 +26,6 @@ class GoodsReceipt(models.Model):
     applied = models.BooleanField(default=False)
     applied_at = models.DateTimeField(null=True, blank=True)
 
-    @property
-    def total(self):
-        return self.lines.aggregate(
-            total=(
-                Coalesce(
-                    Sum(F("quantity") * F("unit_price")), 0, output_field=models.DecimalField()
-                )
-            )
-        )["total"]
-
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -45,6 +35,16 @@ class GoodsReceipt(models.Model):
 
     def __str__(self):
         return f"{self.supplier} {self.location} {self.date} {self.document_number}"
+
+    @property
+    def total(self):
+        return self.lines.aggregate(
+            total=(
+                Coalesce(
+                    Sum(F("quantity") * F("unit_price")), 0, output_field=models.DecimalField()
+                )
+            )
+        )["total"]
 
 
 class GoodsReceiptLine(models.Model):

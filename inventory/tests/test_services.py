@@ -1,15 +1,9 @@
-import pytest
-from .conftest import (
-    create_goods_receipt_line,
-    create_stock,
-    create_goods_receipt,
-    create_reported_loss,
-    create_stock_count,
-    create_stock_count_line,
-)
-from inventory.services import apply_goods_receipt, apply_reported_loss, apply_stock_count
 import threading
+
+import pytest
 from django.db import connections
+
+from inventory.services import apply_goods_receipt, apply_reported_loss, apply_stock_count
 
 
 @pytest.mark.django_db(transaction=True)

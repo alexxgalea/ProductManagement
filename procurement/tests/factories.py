@@ -1,8 +1,9 @@
-from django.utils import timezone
 from decimal import Decimal
 
 import factory
-from procurement.models import Supplier, GoodsReceipt, GoodsReceiptLine
+from django.utils import timezone
+
+from procurement.models import GoodsReceipt, GoodsReceiptLine, Supplier
 
 
 class SupplierFactory(factory.django.DjangoModelFactory):

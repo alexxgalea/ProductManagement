@@ -1,9 +1,9 @@
-from django.db import models
-from django.core.validators import MinValueValidator
-from django.utils import timezone
 from django.conf import settings
-from django.db.models import Sum, F
+from django.core.validators import MinValueValidator
+from django.db import models
+from django.db.models import F, Sum
 from django.db.models.functions import Coalesce
+from django.utils import timezone
 
 
 class ReportedLossQuerySet(models.QuerySet):
@@ -88,11 +88,11 @@ class StaffConsumptionBudget(models.Model):
             models.UniqueConstraint(fields=["location", "month"], name="uq_location_month"),
         ]
 
+    def __str__(self):
+        return f"{self.location} {self.month.strftime('%B %Y')} {self.amount}"
+
     def save(self, *args, **kwargs):
         if self.month:
             self.month = self.month.replace(day=1)
 
         super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.location} {self.month.strftime('%B %Y')} {self.amount}"

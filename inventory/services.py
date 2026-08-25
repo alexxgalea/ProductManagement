@@ -1,10 +1,10 @@
-from .models import Stock
-from django.utils import timezone
-from django.db.models import F
 from django.db import transaction
-from procurement.models import GoodsReceipt
+from django.db.models import F
+from django.utils import timezone
+
+from inventory.models import Stock, StockCount
 from losses.models import ReportedLoss
-from inventory.models import StockCount, Stock, StockCountLine
+from procurement.models import GoodsReceipt
 
 
 @transaction.atomic

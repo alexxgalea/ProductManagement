@@ -1,6 +1,9 @@
 from django.contrib import admin
-from .models import ReportedLoss, StaffConsumptionBudget
+
 from inventory.services import apply_reported_loss
+
+from .models import ReportedLoss, StaffConsumptionBudget
+
 # Register your models here.
 
 

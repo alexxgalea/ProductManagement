@@ -1,9 +1,10 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Stock, StockCount
-from .serializers import StockReportSerializer, StockCountLineSerializer
 from django.db.models import Sum
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .models import Stock, StockCount
+from .serializers import StockCountLineSerializer, StockReportSerializer
 
 
 # Create your views here.

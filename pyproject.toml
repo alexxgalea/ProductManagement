@@ -23,9 +23,21 @@ show_missing = true
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+extend-exclude = ["*/migrations/*"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "DJ", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# dev.py/prod.py extind base.py prin star-import — e patternul de settings-split ales
+# în M0, nu o greșeală de import (regula DJ012/F403 nu se aplică aici).
+"config/settings/dev.py" = ["F403"]
+"config/settings/prod.py" = ["F403"]
+# Supplier.cif: null=True e intenționat, nu blank=True + "" (decizie 2026-08-21). Există
+# deja un UniqueConstraint pe cif — mai mulți furnizori fără CIF trebuie să poată coexista.
+# NULL != NULL în Postgres, deci nu lovește unicitatea; "" == "" ar lovi-o la al doilea
+# furnizor fără CIF. Schimbarea la blank=True ar introduce un bug, nu l-ar repara.
+"procurement/models.py" = ["DJ001"]
 
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]

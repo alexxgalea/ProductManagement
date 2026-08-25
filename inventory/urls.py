@@ -1,4 +1,5 @@
 from django.urls import path
+
 from .views import InventoryDiscrepancyView, StockReportView, StockValueView
 
 urlpatterns = [

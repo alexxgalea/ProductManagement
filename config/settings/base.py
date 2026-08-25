@@ -1,6 +1,6 @@
 from pathlib import Path
-import environ
 
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir' / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent

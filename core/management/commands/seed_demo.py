@@ -1,12 +1,14 @@
-from django.core.management.base import BaseCommand
-from accounts.models import Location
-from sales.models import Receipt, ReceiptLine
-from core.models import Ingredient, RecipeIngredient, Recipe, MenuItem
-from inventory.models import Stock
 import random
 from decimal import Decimal
-from django.utils import timezone
+
+from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.utils import timezone
+
+from accounts.models import Location
+from core.models import Ingredient, MenuItem, Recipe, RecipeIngredient
+from inventory.models import Stock
+from sales.models import Receipt, ReceiptLine
 
 
 class Command(BaseCommand):
@@ -40,7 +42,7 @@ class Command(BaseCommand):
             ReceiptLine.objects.all().delete()
             Recipe.objects.all().delete()
 
-            Stock.objects.all().delete
+            Stock.objects.all().delete()
 
         new_location, _ = Location.objects.get_or_create(name="Locatie demo", address="Adresa noua")
 

@@ -1,7 +1,8 @@
 from decimal import Decimal
-from django.utils import timezone
 
 import factory
+from django.utils import timezone
+
 from inventory.models import Stock, StockCount, StockCountLine
 
 

@@ -1,8 +1,7 @@
-from django.db import models
 from django.core.validators import MinValueValidator
+from django.db import models
+from django.db.models import F, Sum
 from django.db.models.functions import Coalesce
-from django.db.models import Sum, F
-
 
 # Create your models here.
 
@@ -21,6 +20,9 @@ class Receipt(models.Model):
             )
         ]
 
+    def __str__(self):
+        return f"{self.location} {self.sold_at} {self.external_id}"
+
     @property
     def total(self):
         return self.lines.aggregate(
@@ -30,9 +32,6 @@ class Receipt(models.Model):
                 )
             )
         )["total"]
-
-    def __str__(self):
-        return f"{self.location} {self.sold_at} {self.external_id}"
 
 
 class ReceiptLineQuerySet(models.QuerySet):
@@ -69,9 +68,6 @@ class ReceiptLine(models.Model):
 
     objects = ReceiptLineQuerySet.as_manager()
 
-    def __str__(self):
-        return f"{self.receipt} {self.menu_item} {self.quantity} {self.unit_price}"
-
     class Meta:
         constraints = [
             models.CheckConstraint(
@@ -80,3 +76,6 @@ class ReceiptLine(models.Model):
             ),
             models.UniqueConstraint(fields=["receipt", "menu_item"], name="uq_receipt_menu_item"),
         ]
+
+    def __str__(self):
+        return f"{self.receipt} {self.menu_item} {self.quantity} {self.unit_price}"

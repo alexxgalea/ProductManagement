@@ -1,5 +1,5 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Create your models here.
 
@@ -62,16 +62,6 @@ class RecipeIngredient(models.Model):
         default=0,
     )
 
-    @property
-    def gross_quantity(self):
-        return self.net_quantity * (1 + self.loss_factor)
-
-    @property
-    def cost(self):
-        if self.ingredient.unitary_cost is None:
-            return None
-        return self.gross_quantity * self.ingredient.unitary_cost
-
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["recipe", "ingredient"], name="uq_receipe_ingredient"),
@@ -82,4 +72,17 @@ class RecipeIngredient(models.Model):
         ]
 
     def __str__(self):
-        return f"Linie rețetă: {self.recipe.menu_item.name} -> {self.ingredient.name} ({self.net_quantity} {self.loss_factor})"
+        return (
+            f"Linie rețetă: {self.recipe.menu_item.name} -> "
+            f"{self.ingredient.name} ({self.net_quantity} {self.loss_factor})"
+        )
+
+    @property
+    def gross_quantity(self):
+        return self.net_quantity * (1 + self.loss_factor)
+
+    @property
+    def cost(self):
+        if self.ingredient.unitary_cost is None:
+            return None
+        return self.gross_quantity * self.ingredient.unitary_cost
