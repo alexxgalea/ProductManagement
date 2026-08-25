@@ -42,10 +42,11 @@ select = ["E", "F", "I", "B", "DJ", "UP"]
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]
 
-# Module fără type stubs intră aici, pe măsură ce apar la rularea mypy (spec M3, pasul 6):
-# [[tool.mypy.overrides]]
-# module = "factory.*"
-# ignore_missing_imports = true
+# djangorestframework și django-environ n-au stub-uri de tip proprii (django-stubs
+# acoperă doar Django); mypy nu poate verifica interiorul lor — nu e o eroare de logică.
+[[tool.mypy.overrides]]
+module = ["rest_framework.*", "environ.*"]
+ignore_missing_imports = true
 
 [tool.django-stubs]
 django_settings_module = "config.settings.dev"
