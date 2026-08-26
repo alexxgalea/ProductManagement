@@ -1,5 +1,7 @@
 # Restaurant Inventory Platform
 
+![CI](https://github.com/alexxgalea/ProductManagement/actions/workflows/ci.yml/badge.svg)
+
 Event-driven inventory management for restaurants selling on delivery platforms
 (Glovo, Bolt, Wolt). Incoming orders are ingested via signed webhooks, mapped to
 internal recipes, and deducted from stock in an immutable transaction ledger.
