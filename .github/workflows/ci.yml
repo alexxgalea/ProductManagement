@@ -27,6 +27,10 @@ jobs:
       - run: pip install -r requirements.txt
       - run: mypy .
 
+    env:
+        SECRET_KEY: "dummy-ci-secret-key"
+        DATABASE_URL: "postgres://postgres:postgres@localhost:5432/productmanagement"
+
   test:
     runs-on: ubuntu-latest
     services:
