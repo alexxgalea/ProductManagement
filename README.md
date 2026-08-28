@@ -44,3 +44,8 @@ cp .env.example .env        # fill in secrets
 docker compose up -d        # postgres + broker
 pip install -r requirements.txt
 python manage.py migrate && python manage.py runserver
+```
+
+## License
+
+[MIT](LICENSE) © 2026 Alexandru-Marian Galea
