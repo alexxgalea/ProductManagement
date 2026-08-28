@@ -1,11 +1,13 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 # Create your models here.
 
+
 class User(AbstractUser):
     pass
-    
+
+
 # gestiune
 class Location(models.Model):
     name = models.CharField(max_length=120)
@@ -13,10 +15,10 @@ class Location(models.Model):
 
     def __str__(self):
         return f"{self.id} {self.name}"
-    
+
 
 class Membership(models.Model):
-    #defining the choices
+    # defining the choices
     class Role(models.TextChoices):
         owner = "PATRON", "Patron"
         manager = "MANAGER", "Manager"
@@ -29,10 +31,7 @@ class Membership(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(
-                fields = ['user', 'location'],
-                name = "uq_user_location"
-            )
+            models.UniqueConstraint(fields=["user", "location"], name="uq_user_location")
         ]
 
     def __str__(self):
@@ -40,10 +39,14 @@ class Membership(models.Model):
 
 
 class AuditLog(models.Model):
-    actor = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL, related_name="audit_logs")
+    actor = models.ForeignKey(
+        User, blank=True, null=True, on_delete=models.SET_NULL, related_name="audit_logs"
+    )
     action = models.CharField(max_length=120)
     target = models.CharField(max_length=120)
-    location = models.ForeignKey(Location, blank=True, null=True, on_delete=models.SET_NULL, related_name="audit_logs")
+    location = models.ForeignKey(
+        Location, blank=True, null=True, on_delete=models.SET_NULL, related_name="audit_logs"
+    )
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -51,8 +54,3 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"{self.actor} {self.action} {self.timestamp}"
-
-
-
-
-

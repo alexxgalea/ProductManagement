@@ -1,4 +1,5 @@
 import factory
+
 from core.models import Ingredient
 
 

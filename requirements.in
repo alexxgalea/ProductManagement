@@ -6,3 +6,7 @@ djangorestframework
 pytest
 pytest-django
 pytest-cov
+ruff
+mypy
+django-stubs[compatible-mypy]
+pre-commit

@@ -1,14 +1,18 @@
-from django.utils import timezone
 from decimal import Decimal
 
 import factory
-from procurement.models import Supplier, GoodsReceipt, GoodsReceiptLine
+from django.utils import timezone
+
+from procurement.models import GoodsReceipt, GoodsReceiptLine, Supplier
+
 
 class SupplierFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Supplier
+
     name = factory.Sequence(lambda n: f"Supplier {n}")
     cif = factory.Sequence(lambda n: f"CIF{n}")
+
 
 class GoodsReceiptFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -18,6 +22,7 @@ class GoodsReceiptFactory(factory.django.DjangoModelFactory):
     location = factory.SubFactory("accounts.tests.factories.LocationFactory")
     date = factory.LazyFunction(timezone.now)
     document_number = factory.Sequence(lambda n: f"GR{n}")
+
 
 class GoodsReceiptLineFactory(factory.django.DjangoModelFactory):
     class Meta:

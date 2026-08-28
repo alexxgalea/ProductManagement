@@ -1,5 +1,7 @@
 import factory
-from accounts.models import User, Location, Membership, AuditLog
+
+from accounts.models import Location
+
 
 class LocationFactory(factory.django.DjangoModelFactory):
     class Meta:

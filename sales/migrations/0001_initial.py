@@ -6,44 +6,103 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('accounts', '0001_initial'),
-        ('core', '0002_rename_quantity_recipeingredient_net_quantity_and_more'),
+        ("accounts", "0001_initial"),
+        ("core", "0002_rename_quantity_recipeingredient_net_quantity_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Receipt',
+            name="Receipt",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('sold_at', models.DateTimeField()),
-                ('external_id', models.CharField(max_length=64)),
-                ('location', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='receipts', to='accounts.location')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("sold_at", models.DateTimeField()),
+                ("external_id", models.CharField(max_length=64)),
+                (
+                    "location",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="receipts",
+                        to="accounts.location",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ReceiptLine',
+            name="ReceiptLine",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quantity', models.DecimalField(decimal_places=3, max_digits=12, validators=[django.core.validators.MinValueValidator(0, 'Cantitatea de pe bon nu poate fi negativa')])),
-                ('unit_price', models.DecimalField(decimal_places=3, max_digits=12, validators=[django.core.validators.MinValueValidator(0, 'Pretul unitar nu poate fi negativ')])),
-                ('menu_item', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='lines', to='core.menuitem')),
-                ('receipt', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='lines', to='sales.receipt')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "quantity",
+                    models.DecimalField(
+                        decimal_places=3,
+                        max_digits=12,
+                        validators=[
+                            django.core.validators.MinValueValidator(
+                                0, "Cantitatea de pe bon nu poate fi negativa"
+                            )
+                        ],
+                    ),
+                ),
+                (
+                    "unit_price",
+                    models.DecimalField(
+                        decimal_places=3,
+                        max_digits=12,
+                        validators=[
+                            django.core.validators.MinValueValidator(
+                                0, "Pretul unitar nu poate fi negativ"
+                            )
+                        ],
+                    ),
+                ),
+                (
+                    "menu_item",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="lines",
+                        to="core.menuitem",
+                    ),
+                ),
+                (
+                    "receipt",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="lines",
+                        to="sales.receipt",
+                    ),
+                ),
             ],
         ),
         migrations.AddConstraint(
-            model_name='receipt',
-            constraint=models.UniqueConstraint(fields=('location', 'external_id'), name='uq_location_external_id'),
+            model_name="receipt",
+            constraint=models.UniqueConstraint(
+                fields=("location", "external_id"), name="uq_location_external_id"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='receiptline',
-            constraint=models.CheckConstraint(condition=models.Q(('quantity__gte', 0), ('unit_price__gte', 0)), name='quantity_unit_price_gte_0'),
+            model_name="receiptline",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("quantity__gte", 0), ("unit_price__gte", 0)),
+                name="quantity_unit_price_gte_0",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='receiptline',
-            constraint=models.UniqueConstraint(fields=('receipt', 'menu_item'), name='uq_receipt_menu_item'),
+            model_name="receiptline",
+            constraint=models.UniqueConstraint(
+                fields=("receipt", "menu_item"), name="uq_receipt_menu_item"
+            ),
         ),
     ]

@@ -1,19 +1,18 @@
-from django.db import models
-from django.core.exceptions import ObjectDoesNotExist
 from decimal import Decimal
-from django.core.validators import MinValueValidator
-from django.db.models import F, DecimalField
-from django.db.models.functions import Coalesce
+
 from django.contrib import admin
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.validators import MinValueValidator
+from django.db import models
+from django.db.models import DecimalField, F
+from django.db.models.functions import Coalesce
 
 
 class StockQuerySet(models.QuerySet):
     def with_value(self):
         return self.annotate(
             value=F("quantity")
-            * Coalesce(
-                F("ingredient__unitary_cost"), Decimal(0), output_field=DecimalField()
-            )
+            * Coalesce(F("ingredient__unitary_cost"), Decimal(0), output_field=DecimalField())
         )
 
 
@@ -28,15 +27,15 @@ class Stock(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     objects = StockQuerySet.as_manager()
 
-    def __str__(self):
-        return f"{self.location} {self.ingredient} {self.quantity}"
-
     class Meta:
         constraints = [
             models.UniqueConstraint(
                 fields=["location", "ingredient"], name="uq_location_ingredient"
             )
         ]
+
+    def __str__(self):
+        return f"{self.location} {self.ingredient} {self.quantity}"
 
     @property
     def is_negative(self):
@@ -67,23 +66,6 @@ class StockCountLine(models.Model):
     )
     counted_quantity = models.DecimalField(max_digits=12, decimal_places=3)
 
-    @property
-    @admin.display(description="Discrepanta")
-    def variance(self):
-        location = self.stock_count.location
-        if self.counted_quantity is None or self.stock_count_id is None:
-            return None
-
-        try:
-            stock_record = Stock.objects.get(
-                location=location, ingredient=self.ingredient
-            )
-            current_stock = stock_record.quantity
-        except ObjectDoesNotExist:
-            current_stock = Decimal("0.000")
-
-        return self.counted_quantity - current_stock
-
     class Meta:
         constraints = [
             models.CheckConstraint(
@@ -97,3 +79,18 @@ class StockCountLine(models.Model):
 
     def __str__(self):
         return f"{self.stock_count} {self.ingredient} {self.counted_quantity}"
+
+    @property
+    @admin.display(description="Discrepanta")
+    def variance(self):
+        location = self.stock_count.location
+        if self.counted_quantity is None or self.stock_count_id is None:
+            return None
+
+        try:
+            stock_record = Stock.objects.get(location=location, ingredient=self.ingredient)
+            current_stock = stock_record.quantity
+        except ObjectDoesNotExist:
+            current_stock = Decimal("0.000")
+
+        return self.counted_quantity - current_stock

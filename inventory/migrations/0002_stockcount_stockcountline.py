@@ -6,32 +6,75 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0001_initial'),
-        ('core', '0002_rename_quantity_recipeingredient_net_quantity_and_more'),
-        ('inventory', '0001_initial'),
+        ("accounts", "0001_initial"),
+        ("core", "0002_rename_quantity_recipeingredient_net_quantity_and_more"),
+        ("inventory", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='StockCount',
+            name="StockCount",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateTimeField()),
-                ('location', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='stock_counts', to='accounts.location')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("date", models.DateTimeField()),
+                (
+                    "location",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="stock_counts",
+                        to="accounts.location",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='StockCountLine',
+            name="StockCountLine",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('counted_quantity', models.DecimalField(decimal_places=3, max_digits=12)),
-                ('ingredient', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='stock_lines', to='core.ingredient')),
-                ('stock_count', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='stock_lines', to='inventory.stockcount', validators=[django.core.validators.MinValueValidator(0.0, 'Cantitatea nu poate fi negativa')])),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("counted_quantity", models.DecimalField(decimal_places=3, max_digits=12)),
+                (
+                    "ingredient",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="stock_lines",
+                        to="core.ingredient",
+                    ),
+                ),
+                (
+                    "stock_count",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="stock_lines",
+                        to="inventory.stockcount",
+                        validators=[
+                            django.core.validators.MinValueValidator(
+                                0.0, "Cantitatea nu poate fi negativa"
+                            )
+                        ],
+                    ),
+                ),
             ],
             options={
-                'constraints': [models.CheckConstraint(condition=models.Q(('counted_quantity__gte', 0)), name='counted_quantity_gte_0'), models.UniqueConstraint(fields=('stock_count', 'ingredient'), name='uq_stock_count_ingredient')],
+                "constraints": [
+                    models.CheckConstraint(
+                        condition=models.Q(("counted_quantity__gte", 0)),
+                        name="counted_quantity_gte_0",
+                    ),
+                    models.UniqueConstraint(
+                        fields=("stock_count", "ingredient"), name="uq_stock_count_ingredient"
+                    ),
+                ],
             },
         ),
     ]
