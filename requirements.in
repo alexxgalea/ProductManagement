@@ -10,3 +10,5 @@ ruff
 mypy
 django-stubs[compatible-mypy]
 pre-commit
+djangorestframework-simplejwt
+drf-spectacular
